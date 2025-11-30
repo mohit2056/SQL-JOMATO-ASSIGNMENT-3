@@ -1,0 +1,4 @@
+- Tested on MySQL 8.0.
+- Make sure to disable safe update mode when running Task 2:
+
+SET SQL_SAFE_UPDATES = 0;
