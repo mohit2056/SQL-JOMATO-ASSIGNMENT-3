@@ -1,0 +1,120 @@
+1. Stored Procedure (Restaurants with Table Booking ≠ 0)
+
+DROP PROCEDURE IF EXISTS GetRestaurantsWithBooking;
+
+DELIMITER $$
+
+CREATE PROCEDURE GetRestaurantsWithBooking()
+BEGIN
+    SELECT 
+        RestaurantName,
+        RestaurantType,
+        cuisineType
+    FROM Jomato
+    WHERE TableBooking <> 0;
+END$$
+
+DELIMITER ;
+
+-- Run
+CALL GetRestaurantsWithBooking();
+
+2. Transaction & Rollback (Update Cafe → Cafeteria)
+
+SET SQL_SAFE_UPDATES = 0;
+
+START TRANSACTION;
+
+UPDATE Jomato
+SET cuisineType = 'Cafeteria'
+WHERE cuisineType = 'Cafe';
+
+-- Check update
+SELECT RestaurantName, cuisineType FROM Jomato WHERE cuisineType = 'Cafeteria';
+
+-- Rollback
+ROLLBACK;
+
+-- Verify rollback
+SELECT RestaurantName, cuisineType FROM Jomato WHERE cuisineType = 'Cafe';
+
+3. Row Number & Top 5 Areas (Highest Rating)
+
+SELECT 
+    Area,
+    Rating,
+    ROW_NUMBER() OVER (ORDER BY Rating DESC) AS RowNum
+FROM Jomato
+ORDER BY Rating DESC
+LIMIT 5;
+
+
+4. While Loop (Print 1 to 50)
+
+DELIMITER $$
+
+CREATE PROCEDURE PrintNumbers()
+BEGIN
+    DECLARE i INT DEFAULT 1;
+
+    WHILE i <= 50 DO
+        SELECT i;
+        SET i = i + 1;
+    END WHILE;
+END$$
+
+DELIMITER ;
+
+-- Run
+CALL PrintNumbers();
+
+5. View (Top 5 Highest Rating Restaurants)
+
+CREATE VIEW TopRatingRestaurants AS
+SELECT 
+    RestaurantName,
+    RestaurantType,
+    cuisineType,
+    Rating
+FROM Jomato
+ORDER BY Rating DESC
+LIMIT 5;
+
+-- Run
+SELECT * FROM TopRatingRestaurants;
+
+6. Trigger (Message on Insert)
+
+DELIMITER $$
+
+CREATE TRIGGER AfterInsertJomato
+AFTER INSERT ON Jomato
+FOR EACH ROW
+BEGIN
+    SIGNAL SQLSTATE '01000'
+        SET MESSAGE_TEXT = 'New restaurant record inserted into Jomato!';
+END$$
+
+DELIMITER ;
+
+-- Test
+INSERT INTO Jomato (RestaurantName, RestaurantType, cuisineType, Rating, TableBooking, Area)
+VALUES ('Test Cafe', 'Casual Dining', 'Cafe', 4.5, 1, 'Downtown');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
